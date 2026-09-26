@@ -2004,7 +2004,7 @@ const zhCN: Record<string, string> = {
   "settings.terminalFontFamilyPlaceholder": "留空自动继承，例如 MesloLGS NF, monospace",
   "settings.integratedTerminalShell": "集成终端Shell",
   "settings.integratedTerminalShellDescription":
-    "仅新会话生效。Windows 下 Bash 工具用此 shell；自动优先 Git Bash，找不到回退 cmd.exe。",
+    "仅新会话生效。Windows 下 Bash 工具用此 shell；自动优先 Git Bash，找不到回退 cmd.exe。选择 PowerShell 7 时，Agent 会按 PowerShell 语法写命令。",
   "settings.integratedTerminalShell.auto": "自动选择",
   "settings.nativeSearchEnhancements": "增强 Find 和 Grep",
   "settings.nativeSearchEnhancementsDescription":

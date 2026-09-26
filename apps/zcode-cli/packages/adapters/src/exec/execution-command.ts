@@ -7,6 +7,7 @@ import {
   type BashShellProvider,
 } from "./bash-shell-provider.js";
 import { applyExecutionTextEnv } from "./outputEncoding.js";
+import { createPowerShellArgs } from "./powershell-command.js";
 import { windowsExecutableCandidates } from "./windows-executable.js";
 import type {
   ExecutionCommand,
@@ -153,6 +154,16 @@ function createShellProviderCommand(
     };
   }
 
+  if (provider.dialect === "pwsh") {
+    return {
+      args: createPowerShellArgs(command),
+      cwdDialect: provider.dialect,
+      envOverlay: provider.envOverlay,
+      file: provider.file,
+      shell: false,
+    };
+  }
+
   return {
     args: ["-c", "-l", command],
     cwdDialect: provider.dialect,
@@ -186,6 +197,13 @@ export function applyResolvedShellCommand(
       ...resolved,
       args: [],
       file: command,
+    };
+  }
+
+  if (resolved.cwdDialect === "pwsh") {
+    return {
+      ...resolved,
+      args: createPowerShellArgs(command),
     };
   }
 

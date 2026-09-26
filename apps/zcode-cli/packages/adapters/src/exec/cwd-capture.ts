@@ -8,6 +8,7 @@ import {
   type ExecutionShellDialect,
   windowsPathToGitBashPath,
 } from "@zcode/contracts";
+import { createPowerShellCwdCaptureCommand } from "./powershell-command.js";
 
 interface CwdCapturePlan {
   command: ExecutionCommand;
@@ -34,10 +35,12 @@ export function createCwdCapturePlan(
   const wrappedCommand =
     options.dialect === "cmd"
       ? createWindowsCmdCwdCaptureCommand(request.command.command, cwdFilePath)
-      : createPosixCwdCaptureCommand(
-          request.command.command,
-          options.dialect === "git-bash" ? windowsPathToGitBashPath(cwdFilePath) : cwdFilePath,
-        );
+      : options.dialect === "pwsh"
+        ? createPowerShellCwdCaptureCommand(request.command.command, cwdFilePath)
+        : createPosixCwdCaptureCommand(
+            request.command.command,
+            options.dialect === "git-bash" ? windowsPathToGitBashPath(cwdFilePath) : cwdFilePath,
+          );
 
   return {
     command: {

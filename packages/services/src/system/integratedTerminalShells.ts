@@ -29,8 +29,40 @@ export function listIntegratedTerminalShellOptions(options: {
       source: gitBash.source,
     });
   }
+  const pwsh = resolveWindowsPowerShell7(options.env, options.isExecutable);
+  if (pwsh) {
+    shellOptions.push({
+      dialect: "pwsh",
+      id: `pwsh:${pwsh.path}`,
+      label: "PowerShell 7",
+      path: pwsh.path,
+      source: pwsh.source,
+    });
+  }
 
   return shellOptions;
+}
+
+/** PowerShell 7（pwsh.exe）：先查标准安装目录，再查 PATH（覆盖 Microsoft Store 应用执行别名、winget、scoop）。 */
+function resolveWindowsPowerShell7(
+  env: NodeJS.ProcessEnv,
+  isExecutable?: ExecutableCheck,
+): { path: string; source: "system" | "path" } | undefined {
+  const programFiles = getWindowsEnvValue(env, "ProgramFiles")?.trim() || "C:\\Program Files";
+  const systemCandidates = [
+    win32.join(programFiles, "PowerShell", "7", "pwsh.exe"),
+    win32.join(programFiles, "PowerShell", "7-preview", "pwsh.exe"),
+  ];
+  for (const candidate of systemCandidates) {
+    if (isExecutableCandidate(candidate, isExecutable)) {
+      return { path: candidate, source: "system" };
+    }
+  }
+
+  const fromPath = windowsExecutableCandidates("pwsh", env).find(
+    (candidate) => candidate.toLowerCase().endsWith(".exe") && isExecutableCandidate(candidate, isExecutable),
+  );
+  return fromPath ? { path: fromPath, source: "path" } : undefined;
 }
 
 function createCommandPromptOption(env: NodeJS.ProcessEnv): IntegratedTerminalShellOption {

@@ -3,8 +3,12 @@
 // ============================================================
 
 import type { ContextSection, EnvInfo } from "../types.js";
-import type { Model } from "@zcode/contracts";
+import { POWERSHELL_7_SHELL_DISPLAY_NAME, type Model } from "@zcode/contracts";
 import { estimateTokens } from "../utils.js";
+
+// Bash 工具描述是全局固定的（"Executes a bash command"），shell 为 PowerShell 7 时必须在环境段纠正语法预期。
+const POWERSHELL_SHELL_NOTE =
+  "- The Bash tool runs commands in PowerShell 7 (pwsh), not bash: write PowerShell syntax (e.g. `Get-ChildItem`, `$env:NAME`, `;` or newlines between statements), and use `Set-Location` to change directories.";
 
 const ENVIRONMENT_HEADING = "# Environment";
 const WORKING_DIRECTORY_LABEL = "Primary working directory";
@@ -72,6 +76,7 @@ function buildEnvInfoContent(info: EnvInfo, model?: Model): string {
     `- ${IS_GIT_REPOSITORY_LABEL}: ${hasGitRepository ? YES_LABEL : NO_LABEL}`,
     `- ${PLATFORM_LABEL}: ${info.platform}`,
     `- ${SHELL_LABEL}: ${info.shell}`,
+    ...(info.shell === POWERSHELL_7_SHELL_DISPLAY_NAME ? [POWERSHELL_SHELL_NOTE] : []),
     `- ${OS_VERSION_LABEL}: ${info.osVersion}`,
     // 旧环境快照可能携带历史模型字段；渲染只读取本步骤实际执行的 Model。
     ...(model

@@ -58,7 +58,8 @@ export function buildEmbeddedSearchPreludeContent(
 function supportsPosixShellFunctionPrelude(
   shellDialect: EmbeddedSearchPreludeShellDialect | undefined,
 ): boolean {
-  return shellDialect !== "cmd" && shellDialect !== "legacy-shell";
+  // 前缀是 POSIX shell 函数，cmd 与 PowerShell 都无法解析。
+  return shellDialect !== "cmd" && shellDialect !== "pwsh" && shellDialect !== "legacy-shell";
 }
 
 function normalizeBackendForShell(

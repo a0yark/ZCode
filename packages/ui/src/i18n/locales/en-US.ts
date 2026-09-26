@@ -2134,7 +2134,7 @@ const enUS: Record<string, string> = {
   "settings.terminalFontFamilyPlaceholder": "Leave blank to inherit, e.g. MesloLGS NF, monospace",
   "settings.integratedTerminalShell": "Integrated terminal shell",
   "settings.integratedTerminalShellDescription":
-    "Applies to new sessions only. On Windows, Bash uses this shell; Auto tries Git Bash, then cmd.exe.",
+    "Applies to new sessions only. On Windows, Bash uses this shell; Auto tries Git Bash, then cmd.exe. With PowerShell 7 selected, the agent writes commands in PowerShell syntax.",
   "settings.integratedTerminalShell.auto": "Auto",
   "settings.nativeSearchEnhancements": "Enhanced Find and Grep",
   "settings.nativeSearchEnhancementsDescription":

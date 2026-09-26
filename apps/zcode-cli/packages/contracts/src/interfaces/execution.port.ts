@@ -27,14 +27,17 @@ export type ExecutionCommand =
       shellOverride?: ExecutionShellSelection;
     };
 
-export type ExecutionShellDialect = "cmd" | "posix" | "git-bash";
+export type ExecutionShellDialect = "cmd" | "posix" | "git-bash" | "pwsh";
+
+/** `pwsh` dialect 的稳定显示名；环境提示据此告诉模型按 PowerShell 语法写命令。 */
+export const POWERSHELL_7_SHELL_DISPLAY_NAME = "PowerShell 7";
 
 export type ExecutionShellSource = "auto-detected" | "user-config" | "legacy-fallback";
 
 export interface ExecutionShellDisplay {
   /**
    * Stable provider-visible shell name. Never include absolute paths here.
-   * Examples: "bash", "zsh", "Git Bash", "CMD", "system shell".
+   * Examples: "bash", "zsh", "Git Bash", "CMD", "PowerShell 7", "system shell".
    */
   name: string;
 }

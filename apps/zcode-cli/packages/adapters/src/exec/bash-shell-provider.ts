@@ -1,7 +1,11 @@
 import { accessSync, constants as fsConstants } from "node:fs";
 import { basename, delimiter, join, win32 } from "node:path";
 import { windowsExecutableCandidates } from "./windows-executable.js";
-import { type ExecutionShellDialect, type ExecutionShellSelection } from "@zcode/contracts";
+import {
+  POWERSHELL_7_SHELL_DISPLAY_NAME,
+  type ExecutionShellDialect,
+  type ExecutionShellSelection,
+} from "@zcode/contracts";
 
 type PosixShellKind = "bash" | "zsh";
 type ExecutableCheck = (path: string) => boolean;
@@ -12,7 +16,7 @@ type EffectiveBashShellResolveOptions = {
   override?: ExecutionShellSelection;
 };
 
-const FIXED_POSIX_SHELL_DIRS = ["/bin", "/usr/bin", "/usr/local/bin", "/opt/homebrew/bin"];
+const FIXED_POSIX_SHELL_DIRS =["/bin", "/usr/bin", "/usr/local/bin", "/opt/homebrew/bin"];
 const WINDOWS_GIT_BASH_PATHS = [
   "C:\\Program Files\\Git\\bin\\bash.exe",
   "C:\\Program Files (x86)\\Git\\bin\\bash.exe",
@@ -134,6 +138,9 @@ function createShellProviderFromSelection(
   if (selection.dialect === "cmd") {
     return createWindowsCmdProvider(selection.path);
   }
+  if (selection.dialect === "pwsh") {
+    return createPowerShellProvider(selection.path);
+  }
   if (selection.dialect === "posix") {
     return createPosixShellProvider(selection.path);
   }
@@ -155,6 +162,23 @@ function resolveEffectiveWindowsBashShellSelection(
         selection: shellSelection({
           dialect: "git-bash",
           displayName: "Git Bash",
+          id: override.id,
+          label: override.label,
+          path: override.path,
+          source: "user-config",
+        }),
+      };
+    }
+    if (
+      override.dialect === "pwsh" &&
+      override.path &&
+      isExecutableCandidate(override.path, options.exists)
+    ) {
+      return {
+        provider: createPowerShellProvider(override.path),
+        selection: shellSelection({
+          dialect: "pwsh",
+          displayName: POWERSHELL_7_SHELL_DISPLAY_NAME,
           id: override.id,
           label: override.label,
           path: override.path,
@@ -260,6 +284,18 @@ function createWindowsCmdProvider(shellPath: string): BashShellProvider {
     dialect: "cmd",
     file: shellPath,
     shell: shellPath,
+  };
+}
+
+/** PowerShell 7：直接 spawn pwsh.exe，命令经 -EncodedCommand 传入（见 powershell-command.ts）。 */
+function createPowerShellProvider(shellPath: string): BashShellProvider {
+  return {
+    dialect: "pwsh",
+    envOverlay: {
+      GIT_EDITOR: "true",
+    },
+    file: shellPath,
+    shell: false,
   };
 }
 

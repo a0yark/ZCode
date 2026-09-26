@@ -348,7 +348,7 @@ function commandShellKind(
   selection: ToolExecutionContext["bashShellSelection"],
 ): CommandShellKind | undefined {
   const displayName = selection?.display.name.toLowerCase();
-  if (displayName?.includes("powershell")) return "powershell";
+  if (selection?.dialect === "pwsh" || displayName?.includes("powershell")) return "powershell";
   if (displayName?.includes("zsh")) return "zsh";
   if (displayName?.includes("bash")) return "bash";
   if (selection?.dialect === "cmd") return "cmd";

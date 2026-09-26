@@ -39,6 +39,7 @@ import {
   type TurnId,
   type UsageStorePort,
   type WorkspaceId,
+  POWERSHELL_7_SHELL_DISPLAY_NAME,
 } from "@zcode/contracts";
 import {
   DEFAULT_ZCODE_MODEL_CONTEXT_BUDGET_STRATEGY,
@@ -3134,7 +3135,12 @@ function integratedTerminalShellToExecutionSelection(
   }
   return {
     display: {
-      name: selection.dialect === "git-bash" ? "Git Bash" : "CMD",
+      name:
+        selection.dialect === "git-bash"
+          ? "Git Bash"
+          : selection.dialect === "pwsh"
+            ? POWERSHELL_7_SHELL_DISPLAY_NAME
+            : "CMD",
     },
     dialect: selection.dialect,
     id: selection.id,
