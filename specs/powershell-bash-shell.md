@@ -23,12 +23,14 @@
 
 ## 执行语义（CLI adapters）
 
-- 启动：`pwsh.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand <base64(UTF-16LE)>`，`shell: false`。用 `-EncodedCommand` 传命令，避免 Windows 命令行二次转义。不加载用户 profile，保证行为确定、启动快。
+- 启动：`pwsh.exe -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -OutputFormat Text -EncodedCommand <base64(UTF-16LE)>`，`shell: false`。用 `-EncodedCommand` 传命令，避免 Windows 命令行二次转义。不加载用户 profile，保证行为确定、启动快。
+- 错误输出为纯文本：`-EncodedCommand` 在输出被重定向时会把错误流序列化成 CLIXML（`#< CLIXML <Objs …>`），必须显式传 `-OutputFormat Text`。环境变量叠加 `TERM=dumb`，让 pwsh 启动时关闭 VT/ANSI 着色，否则错误信息带转义码。脚本内设置 `$PSStyle.OutputRendering` 无法去掉错误视图的着色，所以必须在启动前设置环境变量。
 - 前导：把 `[Console]::OutputEncoding` 和 `$OutputEncoding` 设为无 BOM 的 UTF-8，避免中文系统默认代码页（如 gb2312）造成乱码；`$ProgressPreference = 'SilentlyContinue'`，防止进度条污染输出。
 - 退出码：`pwsh -Command` 默认只返回 0/1。命令后追加尾声：
   - 最后一条语句成功时，返回 0；
   - 失败且 `$LASTEXITCODE` 非零时，返回 `$LASTEXITCODE`，保留原生程序的退出码；
   - 其余失败情况返回 1。
+  - 已知偏差：原生程序先失败、之后的 cmdlet 又失败时（如 `cmd /c exit 3; Get-Item not-exist`），返回较早的 `$LASTEXITCODE`（3），不是 1。成功/失败的判断仍然正确。
 - cwd 捕获（`captureCwdAfterSuccess`）：成功时把 `$PWD.ProviderPath` 以无 BOM 的 UTF-8 写入临时文件，与 cmd、posix 的语义一致。
 - 不支持的能力（与 cmd 一致）：shell 初始化快照、启动脚本、内置 find/grep 函数前缀。
 
@@ -36,6 +38,6 @@
 
 1. 装有 PowerShell 7 的 Windows 上，设置下拉框出现 “PowerShell 7”；未安装时不出现。
 2. 选中后新会话执行 `Get-ChildItem`、`$PSVersionTable.PSVersion.Major` 正常，中文输出不乱码。
-3. `cmd /c exit 3` 的退出码为 3；`Get-Item not-exist` 的退出码为 1；成功命令为 0。
+3. `cmd /c exit 3` 的退出码为 3；`Get-Item not-exist` 的退出码为 1，stderr 为纯文本（无 CLIXML、无 ANSI 转义）；成功命令为 0。
 4. `Set-Location` 到子目录后，下一次 Bash 调用的工作目录跟随变化。
 5. `pnpm typecheck`、`pnpm lint` 通过；CLI 相关包 `tsc --noEmit` 通过。

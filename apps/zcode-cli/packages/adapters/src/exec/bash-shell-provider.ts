@@ -16,7 +16,8 @@ type EffectiveBashShellResolveOptions = {
   override?: ExecutionShellSelection;
 };
 
-const FIXED_POSIX_SHELL_DIRS =["/bin", "/usr/bin", "/usr/local/bin", "/opt/homebrew/bin"];
+const POWERSHELL_PLAIN_TEXT_TERM = "dumb";
+const FIXED_POSIX_SHELL_DIRS = ["/bin", "/usr/bin", "/usr/local/bin", "/opt/homebrew/bin"];
 const WINDOWS_GIT_BASH_PATHS = [
   "C:\\Program Files\\Git\\bin\\bash.exe",
   "C:\\Program Files (x86)\\Git\\bin\\bash.exe",
@@ -293,6 +294,9 @@ function createPowerShellProvider(shellPath: string): BashShellProvider {
     dialect: "pwsh",
     envOverlay: {
       GIT_EDITOR: "true",
+      // pwsh 在启动时根据 TERM 决定是否输出 VT/ANSI 着色，脚本里再改 $PSStyle 去不掉错误视图的转义码，
+      // 所以要在进程环境里设成 dumb，stderr 才是纯文本。
+      TERM: POWERSHELL_PLAIN_TEXT_TERM,
     },
     file: shellPath,
     shell: false,

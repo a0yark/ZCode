@@ -60,7 +60,8 @@ function resolveWindowsPowerShell7(
   }
 
   const fromPath = windowsExecutableCandidates("pwsh", env).find(
-    (candidate) => candidate.toLowerCase().endsWith(".exe") && isExecutableCandidate(candidate, isExecutable),
+    (candidate) =>
+      candidate.toLowerCase().endsWith(".exe") && isExecutableCandidate(candidate, isExecutable),
   );
   return fromPath ? { path: fromPath, source: "path" } : undefined;
 }

@@ -3,13 +3,19 @@
 // ============================================================
 // 规格见 specs/powershell-bash-shell.md。
 
-/** 固定启动参数：不加载 profile，保证行为确定且启动快；命令正文走 -EncodedCommand。 */
+/**
+ * 固定启动参数：不加载 profile，保证行为确定且启动快；命令正文走 -EncodedCommand。
+ * 必须显式传 `-OutputFormat Text`：-EncodedCommand 在输出重定向时默认把错误流序列化为 CLIXML
+ * （`#< CLIXML <Objs …>`），模型看到的就不是可读错误信息了（Linux 上用 pwsh 7.4 复现过）。
+ */
 const PWSH_BASE_ARGS = [
   "-NoLogo",
   "-NoProfile",
   "-NonInteractive",
   "-ExecutionPolicy",
   "Bypass",
+  "-OutputFormat",
+  "Text",
 ] as const;
 
 /**
