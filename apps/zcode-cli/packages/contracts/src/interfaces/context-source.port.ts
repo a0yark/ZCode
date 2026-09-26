@@ -2,6 +2,7 @@
 // Context Source Port - host/workspace context boundary
 // ============================================================
 
+import type { SystemPromptSettings } from "@zcode/shared";
 import type { ExecutionContext, TraceContext } from "../tracing/tracer.js";
 
 export interface EnvInfo {
@@ -81,6 +82,8 @@ export interface ContextSourceSnapshot {
   currentDate?: string;
   userInstructions?: ResolvedUserInstructions;
   projectContext?: ProjectContext;
+  /** 用户级系统提示词设置（`<dataBaseDir>/.zcode/v2/system-prompts.json`）；缺席或损坏时为 undefined。 */
+  systemPromptSettings?: SystemPromptSettings;
   diagnostics: ContextSourceDiagnostic[];
 }
 

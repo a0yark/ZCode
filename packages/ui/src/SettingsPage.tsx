@@ -70,6 +70,7 @@ import { PluginsSection } from "@/settings/PluginsSection.js";
 import { HooksSection } from "@/settings/HooksSection.js";
 import { WorkspaceFileSearchSection } from "@/settings/WorkspaceFileSearchSection.js";
 import { MemorySettingsSection } from "@/settings/MemorySettingsSection.js";
+import { SystemPromptSettingsSection } from "@/settings/system-prompts/SystemPromptSettingsSection.js";
 import { BrowserSettingsSection } from "@/settings/BrowserSettingsSection.js";
 import { ComputerUseSection } from "@/settings/ComputerUseSection.js";
 import { ShortcutSettingsSection } from "@/settings/ShortcutSettingsSection.js";
@@ -1821,6 +1822,11 @@ export function SettingsPage({
                               }
                             />
                           </ServiceProvider>
+                        ) : activeSection === "systemPrompts" ? (
+                          // 系统提示词配置是本机文件，与 memory 一样始终走本地 Host。
+                          <SystemPromptSettingsSection
+                            service={localHostServices.systemPromptSettingsService}
+                          />
                         ) : activeSection === "memory" ? (
                           <ServiceProvider services={localHostServices}>
                             {/* Memory catalog 始终使用本地 Host，避免远程 workspace 误读本机数据。 */}

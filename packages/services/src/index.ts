@@ -78,6 +78,10 @@ export { ICredentialService } from "./credential/credential.js";
 // Broadcast service — IBroadcastService is both a type (interface) and value (descriptor)
 export { IBroadcastService } from "./broadcast/broadcast.js";
 
+// 系统提示词设置服务（与 onboarding 同理，只导出 descriptor 和类型，工厂由 node.ts 直接导入）
+export { ISystemPromptSettingsService } from "./system-prompt/systemPromptSettings.js";
+export type { SystemPromptSettingsReadResult } from "./system-prompt/systemPromptSettings.js";
+
 // Onboarding 完成记录服务（本地持久化，后续上传服务器）
 export { IOnboardingRecordService } from "./onboarding/onboardingRecord.js";
 export type {

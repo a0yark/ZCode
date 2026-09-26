@@ -2010,6 +2010,56 @@ const zhCN: Record<string, string> = {
   "settings.nativeSearchEnhancementsDescription":
     "在新建会话或应用重启后恢复的会话中使用增强 Find 和 Grep。当前会话保持现有设置；Windows 的 Find 保持不变。",
   "settings.memory": "记忆",
+  "settings.systemPrompts.title": "系统提示词",
+  "settings.systemPrompts.description":
+    "调整发送给 Agent 的系统提示词。修改对新会话生效，只影响主 Agent，不影响子智能体和动态工作流。",
+  "settings.systemPrompts.builtin.title": "内置提示词",
+  "settings.systemPrompts.builtin.description":
+    "可以改写或停用内置段。改写内容留空时使用默认文本，随时可以恢复默认。",
+  "settings.systemPrompts.custom.title": "自定义提示词",
+  "settings.systemPrompts.custom.description":
+    "按列表顺序追加到系统提示词中。标题只用于区分，不会发给模型。",
+  "settings.systemPrompts.custom.add": "添加提示词",
+  "settings.systemPrompts.custom.empty": "还没有自定义提示词",
+  "settings.systemPrompts.custom.untitled": "未命名提示词",
+  "settings.systemPrompts.custom.titlePlaceholder": "标题，例如“安全与道德规范”",
+  "settings.systemPrompts.custom.contentPlaceholder": "提示词正文",
+  "settings.systemPrompts.custom.deleteConfirmTitle": "删除“{title}”？",
+  "settings.systemPrompts.custom.deleteConfirmDescription":
+    "删除后无法恢复。已经开始的会话不受影响。",
+  "settings.systemPrompts.edit": "编辑",
+  "settings.systemPrompts.save": "保存",
+  "settings.systemPrompts.cancel": "取消",
+  "settings.systemPrompts.delete": "删除",
+  "settings.systemPrompts.reset": "恢复默认",
+  "settings.systemPrompts.modified": "已修改",
+  "settings.systemPrompts.disabled": "已停用",
+  "settings.systemPrompts.enableToggle": "启用{name}",
+  "settings.systemPrompts.contentTooLong": "内容不能超过 {max} 个字符。",
+  "settings.systemPrompts.loadFailed": "读取系统提示词设置失败：{error}",
+  "settings.systemPrompts.saveFailed": "保存失败：{error}",
+  "settings.systemPrompts.invalidFile":
+    "配置文件内容无效，当前显示的是默认值，保存后会覆盖该文件。（{error}）",
+  "settings.systemPrompts.unavailable": "当前环境不支持编辑系统提示词。",
+  "settings.systemPrompts.section.cliPrefix.title": "开头身份句",
+  "settings.systemPrompts.section.cliPrefix.description": "第一条系统消息，声明产品身份。",
+  "settings.systemPrompts.section.identity.title": "身份说明",
+  "settings.systemPrompts.section.identity.description":
+    "Agent 的角色定位。启用输出风格且未改写时，会自动换成输出风格对应的开场句。",
+  "settings.systemPrompts.section.security.title": "安全条款",
+  "settings.systemPrompts.section.security.description": "哪些安全相关请求可以协助，哪些必须拒绝。",
+  "settings.systemPrompts.section.harness.title": "运行约束（Harness）",
+  "settings.systemPrompts.section.harness.description":
+    "输出格式、权限模式、工具使用习惯等运行时约束。",
+  "settings.systemPrompts.section.desktopContext.title": "桌面端约定",
+  "settings.systemPrompts.section.desktopContext.description":
+    "文件和链接的输出格式、行内代码评论指令。仅在桌面端注入，是否注入还取决于服务端灰度配置。",
+  "settings.systemPrompts.section.communication.title": "沟通与行为规范",
+  "settings.systemPrompts.section.communication.description":
+    "汇报方式、代码风格、谨慎操作和如实报告结果。",
+  "settings.systemPrompts.section.contextManagement.title": "上下文管理",
+  "settings.systemPrompts.section.contextManagement.description":
+    "自动压缩、自主推进任务、结束前自检等规则。",
   "settings.memory.workspaceMemory": "工作区记忆",
   "settings.memoryDescription":
     "在工作区中保存并复用长期上下文，新会话生效。开启后可能增加模型调用和 Token 成本。",

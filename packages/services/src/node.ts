@@ -338,6 +338,8 @@ import { createSystemService } from "./system/systemService.js";
 import { createTerminalService } from "./terminal/terminalService.js";
 import { createSettingServiceWithMigrations } from "./setting/settingService.js";
 import { createOnboardingRecordService } from "./onboarding/onboardingRecordService.js";
+import { ISystemPromptSettingsService } from "./system-prompt/systemPromptSettings.js";
+import { createSystemPromptSettingsService } from "./system-prompt/systemPromptSettingsService.js";
 import { createLegacyTeamOrganizationResolver } from "./model-provider/legacyTeamOrganizationResolver.js";
 import { createObservableSettingService } from "./setting/observableSettingService.js";
 import { createCredentialService } from "./credential/credentialService.js";
@@ -2440,6 +2442,7 @@ export function createLocalServices(options: {
     .register(ITerminalService, createTerminalService({ settingService }))
     .register(ISettingService, settingService)
     .register(IOnboardingRecordService, onboardingRecordService)
+    .register(ISystemPromptSettingsService, createSystemPromptSettingsService())
     .register(ICredentialService, credentialService)
     .register(IBroadcastService, broadcastService)
     .register(IZCodeTaskService, zcodeTaskService)

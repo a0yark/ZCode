@@ -11,6 +11,7 @@ import type {
   SkillLoadOutcome,
   UserInstructionsOptions,
 } from "@zcode/contracts";
+import type { SystemPromptSettings } from "@zcode/shared";
 import type { AutoCompactPolicyConfig } from "../compact/index.js";
 import type { AgentProfile } from "../subagent/profile.js";
 
@@ -47,7 +48,8 @@ export type ContextSource =
   | "session_guidance" // 当前可用内置能力指导
   | "output_style" // 输出风格
   | "context_management" // 长上下文管理提示
-  | "desktop_context"; // ZCode Desktop 渲染与交互协议
+  | "desktop_context" // ZCode Desktop 渲染与交互协议
+  | "user_system_prompts"; // 设置页自定义系统提示词
 
 export type ContextInjectionTarget = "system" | "meta_user";
 
@@ -115,6 +117,8 @@ export interface ContextBuilderConfig {
   embeddedSearchEnabled?: boolean;
   skillMetadataBudget?: number;
   customSystemPrompt?: string;
+  /** 设置页的系统提示词配置（内置段改写/停用 + 自定义提示词）；缺席等价于全部默认。 */
+  systemPromptSettings?: SystemPromptSettings;
   /**
    * 动态工作流子代理（workflow child）的身份输入。在场即走 builder 的第三条路径：
    * 基座段（CLI prefix、安全行、Harness、memory）+ 工作流子代理契约 + persona 叠加，

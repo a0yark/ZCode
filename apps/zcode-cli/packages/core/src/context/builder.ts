@@ -3,6 +3,7 @@
 // ============================================================
 
 import type { ModelInputMessage } from "@zcode/contracts";
+import { resolveBuiltinSystemPromptText } from "@zcode/shared";
 import type {
   ContextMetaUserAttachment,
   ContextSection,
@@ -13,7 +14,8 @@ import type {
 import type { ToolRegistry } from "../tool/registry.js";
 import { estimateTokens } from "./utils.js";
 import { buildCliPrefixSection } from "./sections/cli-prefix.js";
-import { buildIdentitySection } from "./sections/identity.js";
+import { buildIdentitySection, resolveIdentitySectionParts } from "./sections/identity.js";
+import { buildUserSystemPromptsSection } from "./sections/user-system-prompts.js";
 import { buildWorkflowActorIdentitySection } from "./sections/workflow-actor.js";
 import { buildEnvInfoSection, buildGitSystemContextSection } from "./sections/env-info.js";
 import { buildSkillsSection } from "./sections/skills.js";
@@ -96,12 +98,16 @@ export class ContextBuilder {
       );
     }
     const isWorkflowActor = workflowActor !== undefined;
+    // 系统提示词设置只作用于主 Agent 的默认提示词路径；整段替换与工作流子代理沿用默认文本。
+    const promptSettings =
+      hasCustomSystemPrompt || isWorkflowActor ? undefined : this.config.systemPromptSettings;
 
     // 1. CLI / product prefix. Keep this as the short leading identity block.
     // 「You are ZCode, an interactive coding agent」对一个
     // 只对脚本说话、可能连读文件工具都没有的子代理是错的身份，且走在正确身份段前面。
-    if (!isWorkflowActor) {
-      sections.push(buildCliPrefixSection());
+    const cliPrefix = resolveBuiltinSystemPromptText(promptSettings, "cliPrefix");
+    if (!isWorkflowActor && cliPrefix !== null) {
+      sections.push(buildCliPrefixSection(cliPrefix));
     }
 
     // 2. Stable agent behavior or custom prompt body
@@ -118,7 +124,13 @@ export class ContextBuilder {
     } else if (workflowActor !== undefined) {
       sections.push(buildWorkflowActorIdentitySection(workflowActor));
     } else {
-      sections.push(buildIdentitySection(activeOutputStyle));
+      const identitySection = buildIdentitySection(
+        activeOutputStyle,
+        resolveIdentitySectionParts(promptSettings, activeOutputStyle),
+      );
+      if (identitySection) {
+        sections.push(identitySection);
+      }
     }
 
     // 3. Dynamic system context
@@ -128,13 +140,24 @@ export class ContextBuilder {
     // 工作流子代理跳过其中面向「与用户对话」的三段（desktop、Dynamic Behavior、session
     // guidance——契约里已把 Report outcomes faithfully 搬过去），保留 memory 与其后各段。
     if (!hasCustomSystemPrompt) {
-      if (!isWorkflowActor && this.config.presentationSurface === "zcode_desktop") {
-        sections.push(buildDesktopContextSection());
+      const desktopContext = resolveBuiltinSystemPromptText(promptSettings, "desktopContext");
+      if (
+        !isWorkflowActor &&
+        this.config.presentationSurface === "zcode_desktop" &&
+        desktopContext !== null
+      ) {
+        sections.push(buildDesktopContextSection(desktopContext));
+      }
+
+      const userSystemPromptsSection = buildUserSystemPromptsSection(promptSettings);
+      if (userSystemPromptsSection) {
+        sections.push(userSystemPromptsSection);
       }
 
       // behaviour part right after stable sp...
-      if (!isWorkflowActor) {
-        sections.push(buildDynamicBehaviorSection());
+      const communication = resolveBuiltinSystemPromptText(promptSettings, "communication");
+      if (!isWorkflowActor && communication !== null) {
+        sections.push(buildDynamicBehaviorSection(communication));
       }
 
       // Session-specific guidance
@@ -164,7 +187,10 @@ export class ContextBuilder {
       }
 
       // Context Management
-      sections.push(buildContextManagementSection());
+      const contextManagement = resolveBuiltinSystemPromptText(promptSettings, "contextManagement");
+      if (contextManagement !== null) {
+        sections.push(buildContextManagementSection(contextManagement));
+      }
 
       const gitSystemContextSection = buildGitSystemContextSection(this.config.envInfo);
       if (gitSystemContextSection) {

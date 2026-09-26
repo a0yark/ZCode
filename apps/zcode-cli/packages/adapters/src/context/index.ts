@@ -20,6 +20,7 @@ import type {
   UserInstructionsOptions,
 } from "@zcode/contracts";
 import { resolveGitSnapshot } from "./git-snapshot.js";
+import { readSystemPromptSettings } from "./system-prompt-settings.js";
 
 const DEFAULT_PRIORITY_FILES = ["AGENTS.md"];
 const DEFAULT_MAX_BYTES = 100 * 1024;
@@ -56,6 +57,7 @@ export class NodeContextSourceAdapter implements ContextSourcePort {
       : undefined;
     const projectContext =
       request.projectContext ?? (projectRoot ? await detectProjectContext(projectRoot) : undefined);
+    const systemPromptSettings = await readSystemPromptSettings(this.env, diagnostics);
 
     return {
       workingDirectory,
@@ -63,6 +65,7 @@ export class NodeContextSourceAdapter implements ContextSourcePort {
       currentDate: request.currentDate ?? formatLocalIsoDate(new Date()),
       userInstructions,
       projectContext,
+      systemPromptSettings,
       diagnostics,
     };
   }

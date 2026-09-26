@@ -2140,6 +2140,58 @@ const enUS: Record<string, string> = {
   "settings.nativeSearchEnhancementsDescription":
     "Use enhanced Find and Grep in new sessions and sessions restored after an app restart. Active sessions keep their current setting; Find remains unchanged on Windows.",
   "settings.memory": "Memory",
+  "settings.systemPrompts.title": "System Prompts",
+  "settings.systemPrompts.description":
+    "Adjust the system prompt sent to the agent. Changes apply to new sessions and only affect the main agent, not subagents or dynamic workflows.",
+  "settings.systemPrompts.builtin.title": "Built-in prompts",
+  "settings.systemPrompts.builtin.description":
+    "Rewrite or disable built-in sections. An empty rewrite falls back to the default text, and you can restore the default at any time.",
+  "settings.systemPrompts.custom.title": "Custom prompts",
+  "settings.systemPrompts.custom.description":
+    "Appended to the system prompt in list order. Titles are only for you and are not sent to the model.",
+  "settings.systemPrompts.custom.add": "Add prompt",
+  "settings.systemPrompts.custom.empty": "No custom prompts yet",
+  "settings.systemPrompts.custom.untitled": "Untitled prompt",
+  "settings.systemPrompts.custom.titlePlaceholder": "Title, e.g. “Safety and ethics”",
+  "settings.systemPrompts.custom.contentPlaceholder": "Prompt text",
+  "settings.systemPrompts.custom.deleteConfirmTitle": "Delete “{title}”?",
+  "settings.systemPrompts.custom.deleteConfirmDescription":
+    "This can't be undone. Sessions that already started are not affected.",
+  "settings.systemPrompts.edit": "Edit",
+  "settings.systemPrompts.save": "Save",
+  "settings.systemPrompts.cancel": "Cancel",
+  "settings.systemPrompts.delete": "Delete",
+  "settings.systemPrompts.reset": "Restore default",
+  "settings.systemPrompts.modified": "Modified",
+  "settings.systemPrompts.disabled": "Disabled",
+  "settings.systemPrompts.enableToggle": "Enable {name}",
+  "settings.systemPrompts.contentTooLong": "Content can't exceed {max} characters.",
+  "settings.systemPrompts.loadFailed": "Failed to load system prompt settings: {error}",
+  "settings.systemPrompts.saveFailed": "Failed to save: {error}",
+  "settings.systemPrompts.invalidFile":
+    "The settings file is invalid. Defaults are shown, and saving will overwrite the file. ({error})",
+  "settings.systemPrompts.unavailable": "System prompts can't be edited in this environment.",
+  "settings.systemPrompts.section.cliPrefix.title": "Opening line",
+  "settings.systemPrompts.section.cliPrefix.description":
+    "The first system message, stating the product identity.",
+  "settings.systemPrompts.section.identity.title": "Identity",
+  "settings.systemPrompts.section.identity.description":
+    "The agent's role. With an output style active and no rewrite, the output style's opening line is used instead.",
+  "settings.systemPrompts.section.security.title": "Security policy",
+  "settings.systemPrompts.section.security.description":
+    "Which security-related requests to help with and which to refuse.",
+  "settings.systemPrompts.section.harness.title": "Harness",
+  "settings.systemPrompts.section.harness.description":
+    "Runtime constraints: output format, permission modes, and tool usage habits.",
+  "settings.systemPrompts.section.desktopContext.title": "Desktop conventions",
+  "settings.systemPrompts.section.desktopContext.description":
+    "Output format for files and links, plus inline code comment directives. Desktop only, and whether it is injected also depends on a server-side rollout.",
+  "settings.systemPrompts.section.communication.title": "Communication and conduct",
+  "settings.systemPrompts.section.communication.description":
+    "How to report progress, code style, caution with risky actions, and faithful reporting.",
+  "settings.systemPrompts.section.contextManagement.title": "Context management",
+  "settings.systemPrompts.section.contextManagement.description":
+    "Auto-compaction, working autonomously, and checking work before ending a turn.",
   "settings.memory.workspaceMemory": "Workspace Memory",
   "settings.memoryDescription":
     "Save and reuse long-term context in workspaces. Applies to new sessions and may increase model requests and token costs.",

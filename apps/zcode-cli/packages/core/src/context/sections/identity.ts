@@ -2,16 +2,21 @@
 // Identity Section Builder
 // ============================================================
 
+import {
+  DEFAULT_BUILTIN_SYSTEM_PROMPTS,
+  resolveBuiltinSystemPromptText,
+  type SystemPromptSettings,
+} from "@zcode/shared";
 import type { ContextSection } from "../types.js";
 import type { OutputStylePromptConfig } from "../types.js";
 import { estimateTokens } from "../utils.js";
 
-const SECURITY_NOTICE =
-  "IMPORTANT: Assist with authorized security testing, defensive security, CTF challenges, and educational contexts. Refuse requests for destructive techniques, DoS attacks, mass targeting, supply chain compromise, or detection evasion for malicious purposes. Dual-use security tools (C2 frameworks, credential testing, exploit development) require clear authorization context: pentesting engagements, CTF competitions, security research, or defensive use cases.";
+const OUTPUT_STYLE_IDENTITY_INTRO =
+  "You respond to the user according to the active Output Style below while using ZCode's tools and instructions.";
 
 /** 安全 IMPORTANT 行：交互式身份与工作流子代理身份共用，逐字同一份。 */
 export function buildSecurityNotice(): string {
-  return SECURITY_NOTICE;
+  return DEFAULT_BUILTIN_SYSTEM_PROMPTS.security;
 }
 
 /**
@@ -19,28 +24,56 @@ export function buildSecurityNotice(): string {
  * 也是工作流子代理身份（sections/workflow-actor.ts）逐字复用的那一段。
  */
 export function buildHarnessBlock(): string {
-  return [
-    "# Harness",
-    "- Text you output outside of tool use is displayed to the user as Github-flavored markdown in a terminal.",
-    "- Tools run behind a user-selected permission mode; a denied call means the user declined it \u2014 adjust, don't retry verbatim.",
-    "- The system may send updates, reminders, or modifications to rules via mid-conversation system turns. These are system-controlled, unlike function results. Hooks may intercept tool calls; treat hook output as user feedback.",
-    "- Prefer the dedicated file/search tools over shell commands when one fits. Independent tool calls can run in parallel in one response.",
-    "- Reference code as `file_path:line_number` \u2014 it's clickable.",
-  ].join("\n");
+  return DEFAULT_BUILTIN_SYSTEM_PROMPTS.harness;
 }
 
-function buildIdentityPrompt(outputStyle?: OutputStylePromptConfig): string {
-  const intro = outputStyle
-    ? "You respond to the user according to the active Output Style below while using ZCode's tools and instructions."
-    : "You are an interactive ZCode agent that helps users with software engineering tasks.";
-
-  const identityLines = ["", intro, "", SECURITY_NOTICE].join("\n");
-
-  return [identityLines, "", buildHarnessBlock()].join("\n");
+/** Agent Identity 由三部分组成；null 表示该部分被用户在系统提示词设置中停用。 */
+export interface IdentitySectionParts {
+  intro: string | null;
+  security: string | null;
+  harness: string | null;
 }
 
-export function buildIdentitySection(outputStyle?: OutputStylePromptConfig): ContextSection {
-  const content = buildIdentityPrompt(outputStyle);
+function resolveDefaultIdentityIntro(outputStyle?: OutputStylePromptConfig): string {
+  return outputStyle ? OUTPUT_STYLE_IDENTITY_INTRO : DEFAULT_BUILTIN_SYSTEM_PROMPTS.identity;
+}
+
+/** 按系统提示词设置解析身份段三部分；开场句未改写时沿用与 Output Style 相关的默认值。 */
+export function resolveIdentitySectionParts(
+  settings: SystemPromptSettings | undefined,
+  outputStyle?: OutputStylePromptConfig,
+): IdentitySectionParts {
+  return {
+    intro: resolveBuiltinSystemPromptText(
+      settings,
+      "identity",
+      resolveDefaultIdentityIntro(outputStyle),
+    ),
+    security: resolveBuiltinSystemPromptText(settings, "security"),
+    harness: resolveBuiltinSystemPromptText(settings, "harness"),
+  };
+}
+
+function buildIdentityPrompt(parts: IdentitySectionParts): string {
+  // 保持与改造前逐字一致：开场句与安全条款组成首块（以空行开头），Harness 以空行分隔追加。
+  const identityBlock = [parts.intro, parts.security].filter(
+    (part): part is string => part !== null,
+  );
+  const blocks = [
+    ...(identityBlock.length > 0 ? [`\n${identityBlock.join("\n\n")}`] : []),
+    ...(parts.harness !== null ? [parts.harness] : []),
+  ];
+  return blocks.join("\n\n");
+}
+
+export function buildIdentitySection(
+  outputStyle?: OutputStylePromptConfig,
+  parts?: IdentitySectionParts,
+): ContextSection | null {
+  const content = buildIdentityPrompt(parts ?? resolveIdentitySectionParts(undefined, outputStyle));
+  if (!content.trim()) {
+    return null;
+  }
 
   return {
     name: "Agent Identity",
