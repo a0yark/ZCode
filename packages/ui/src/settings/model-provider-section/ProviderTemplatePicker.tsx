@@ -26,7 +26,8 @@ export function ProviderTemplatePicker({
   creating,
 }: {
   templates: ProviderSettingsView["providerTemplates"];
-  onBack: () => void;
+  /** 缺省表示没有可返回的详情页（供应商列表为空），不渲染返回按钮。 */
+  onBack?: () => void;
   onCreateFromTemplate: ProviderTemplateCreate;
   onCreateCustom: CustomProviderCreate;
   creating: boolean;
@@ -71,16 +72,18 @@ export function ProviderTemplatePicker({
   return (
     <section className="space-y-5" data-testid={TID_MODEL_PROVIDER_TEMPLATE_PICKER}>
       <div className="flex items-center gap-3">
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          data-testid={TID_MODEL_PROVIDER_TEMPLATE_BACK_BUTTON}
-          aria-label={intl.formatMessage({ id: "settings.modelProvider.templatePickerBack" })}
-          onClick={onBack}
-        >
-          <ArrowLeftIcon className="size-4" aria-hidden="true" />
-        </Button>
+        {onBack ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            data-testid={TID_MODEL_PROVIDER_TEMPLATE_BACK_BUTTON}
+            aria-label={intl.formatMessage({ id: "settings.modelProvider.templatePickerBack" })}
+            onClick={onBack}
+          >
+            <ArrowLeftIcon className="size-4" aria-hidden="true" />
+          </Button>
+        ) : null}
         <h2 className="text-ui-lg font-semibold text-foreground">
           {intl.formatMessage({ id: "settings.modelProvider.templatePickerTitle" })}
         </h2>

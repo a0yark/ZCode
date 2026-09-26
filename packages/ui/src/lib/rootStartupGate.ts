@@ -1,3 +1,5 @@
+import { ACCOUNT_LOGIN_ENABLED } from "@zcode/shared";
+
 interface RootStartupGateState {
   isResolvingStartupAuthState: boolean;
   isResolvingProviderStartupState: boolean;
@@ -41,7 +43,8 @@ export function shouldShowRootStartupLoading(state: RootStartupLoadingVisibility
 }
 
 export function shouldEnableProviderAvailabilityLoginEntryGuard(): boolean {
-  return true;
+  // 关闭官方账号登录后没有登录页可以引导，未配置模型时直接进入主界面，由用户到设置页配置 API。
+  return ACCOUNT_LOGIN_ENABLED;
 }
 
 export function shouldResolveProviderStartupState(state: ProviderStartupResolutionState): boolean {

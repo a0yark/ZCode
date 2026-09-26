@@ -5,6 +5,7 @@ import {
   type ProviderSettingsFormProvider,
 } from "@/lib/providerSettingsFormTypes.js";
 import {
+  ACCOUNT_LOGIN_ENABLED,
   BIGMODEL_PROVIDER_ID,
   BUILTIN_MODEL_PROVIDER_IDS,
   DesktopCommandIds,
@@ -607,8 +608,12 @@ export function ModelProviderSection({
 
   const presetProviders = useMemo(
     () =>
-      PRESET_PROVIDER_SPECS.filter((preset) =>
-        shouldShowPresetProviderForActiveOAuth(preset.id, effectiveProviderFamilyDomain),
+      // 预置 Z.ai / BigModel 条目实际是 Start Plan 账号供应商；关闭账号登录后不展示，
+      // API Key 接入改由“新建 → Z.ai API / BigModel API 模板”创建为自定义供应商。
+      PRESET_PROVIDER_SPECS.filter(
+        (preset) =>
+          ACCOUNT_LOGIN_ENABLED &&
+          shouldShowPresetProviderForActiveOAuth(preset.id, effectiveProviderFamilyDomain),
       ).map((preset) => ({
         ...preset,
         provider: modelProviders.find((provider) => provider.providerId === preset.id) ?? null,
@@ -1038,6 +1043,13 @@ export function ModelProviderSection({
   // 这里改为始终先渲染布局壳子，再按分组展示 loading，避免用户误以为页面坏了。
   const presetLoading = loading || modelProvidersRefreshing;
   const customLoading = loading || modelProvidersRefreshing;
+  // 关闭官方账号登录后没有预置账号条目，无自定义供应商时导航为空，详情区会一直停在 loading。
+  // 空列表时直接展示模板选择器，作为唯一的接入入口。
+  const showEmptyProviderTemplatePicker =
+    !ACCOUNT_LOGIN_ENABLED &&
+    !customLoading &&
+    navigationGroups.every((group) => group.items.length === 0);
+  const showTemplatePicker = templatePickerOpen || showEmptyProviderTemplatePicker;
 
   if (loadError) {
     return (
@@ -1074,7 +1086,7 @@ export function ModelProviderSection({
       onReorderProviderIds={handleReorderProviderIds}
       reorderableProviderIds={reorderableProviderIds}
     >
-      {(invalidProviderTarget || navigationUnavailable) && !templatePickerOpen ? (
+      {(invalidProviderTarget || navigationUnavailable) && !showTemplatePicker ? (
         <p role="alert" className="mb-3 text-ui-base text-destructive">
           {intl.formatMessage({
             id: invalidProviderTarget
@@ -1083,11 +1095,11 @@ export function ModelProviderSection({
           })}
         </p>
       ) : null}
-      {templatePickerOpen ? (
+      {showTemplatePicker ? (
         <ProviderTemplatePicker
           templates={providerTemplates}
           creating={creatingProvider}
-          onBack={() => setTemplatePickerOpen(false)}
+          onBack={showEmptyProviderTemplatePicker ? undefined : () => setTemplatePickerOpen(false)}
           onCreateFromTemplate={(templateId) => {
             return handleCreateProvider({ templateId });
           }}

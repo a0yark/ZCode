@@ -1,4 +1,4 @@
-import { BIGMODEL_PROVIDER_ID, buildBigModelApiUrl } from "@zcode/shared";
+import { ACCOUNT_LOGIN_ENABLED, BIGMODEL_PROVIDER_ID, buildBigModelApiUrl } from "@zcode/shared";
 import type { OAuthProviderRuntimeConfig } from "../runtimeConfig.js";
 import {
   buildDesktopOAuthRedirectUriFromEnv,
@@ -13,7 +13,8 @@ const BIGMODEL_AUTHORIZE_PATH = "/login";
 const BIGMODEL_OAUTH_PROVIDER_CONFIG: Omit<OAuthProviderRuntimeConfig, "appSecret"> = {
   id: BIGMODEL_PROVIDER_ID,
   displayName: "BigModel",
-  enabled: true,
+  // 本分支关闭官方账号登录，默认值跟随统一开关；BIGMODEL_OAUTH_ENABLED 仍可显式覆盖。
+  enabled: ACCOUNT_LOGIN_ENABLED,
   order: 0,
   authorizeUrl: "https://bigmodel.cn/login",
   tokenUrl: "https://zcode.z.ai/api/v1/oauth/token",

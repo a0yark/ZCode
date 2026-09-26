@@ -2,6 +2,7 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LucideProvider, RefreshCw } from "lucide-react";
 import {
+  ACCOUNT_LOGIN_ENABLED,
   APP_RUNTIME_PREFERENCES_CHANGED_BROADCAST_CHANNEL,
   DesktopCommandIds,
   appRuntimePreferencesChangedBroadcastPayloadSchema,
@@ -204,7 +205,7 @@ function RootInner({
   } = useSettings();
   const [welcomeScreenOpenReason, setWelcomeScreenOpenReason] =
     useState<WelcomeScreenOpenReason | null>(() =>
-      consumeZcodeJwtInvalidRestartMarker() ? "session-expired" : null,
+      ACCOUNT_LOGIN_ENABLED && consumeZcodeJwtInvalidRestartMarker() ? "session-expired" : null,
     );
   const [providerFamilyDomainMigrationComplete, setProviderFamilyDomainMigrationComplete] =
     useState(false);
@@ -484,6 +485,10 @@ function RootInner({
     setDirectoryBrowserOpen(true);
   }, []);
   const handleReauthenticationRequired = useCallback(() => {
+    // 关闭官方账号登录后没有可重新登录的入口，不能把用户关进登录页。
+    if (!ACCOUNT_LOGIN_ENABLED) {
+      return;
+    }
     setWelcomeScreenOpenReason("session-expired");
   }, []);
   const {
@@ -870,6 +875,8 @@ function RootInner({
   const handleOpenLoginEntry = () => {
     setWelcomeScreenOpenReason("manual-login");
   };
+  // 登录入口只在开启官方账号登录时下发；侧边栏、设置页和命令面板都依据 onLogin 是否存在来显示“登录”。
+  const loginEntryHandler = ACCOUNT_LOGIN_ENABLED && !user ? handleOpenLoginEntry : undefined;
   const handleWelcomeScreenComplete = useCallback(
     async (reason: LoginCompleteReason) => {
       await refreshAppSettings();
@@ -959,7 +966,7 @@ function RootInner({
     onCreateTask: handleCreateTask,
     onOpenWorkspace: handleOpenWorkspace,
     allowOpenWorkspace,
-    onLogin: !user ? handleOpenLoginEntry : undefined,
+    onLogin: loginEntryHandler,
     onLogout: user ? handleLogout : undefined,
     user,
   };
@@ -1057,7 +1064,7 @@ function RootInner({
             allowRemoteWorkspace={allowRemoteWorkspace}
             handleBackFromSettings={handleBackFromSettings}
             handleLogout={user ? handleLogout : undefined}
-            onLogin={!user ? handleOpenLoginEntry : undefined}
+            onLogin={loginEntryHandler}
             user={user}
             reconnectingRemoteWorkspaceKeys={reconnectingRemoteWorkspaceKeys}
             remoteWorkspaceErrorByWorkspaceKey={remoteWorkspaceErrorByWorkspaceKey}

@@ -7,6 +7,7 @@ import type {
   UserInfo,
 } from "@zcode/shared";
 import {
+  ACCOUNT_LOGIN_ENABLED,
   DesktopCommandIds,
   resolveProviderFamilyDomainFromOAuthProvider,
   ZCODE_JWT_INVALID_BROADCAST_CHANNEL,
@@ -201,6 +202,11 @@ export function useRootOAuthEffects({
   ]);
 
   useEffect(() => {
+    // 关闭官方账号登录后，与官方 ZCode 共用数据目录时残留的 JWT 仍可能触发失效广播；
+    // 此时弹“登录已过期/重启”没有可恢复的登录入口，因此不订阅。
+    if (!ACCOUNT_LOGIN_ENABLED) {
+      return;
+    }
     let disposed = false;
     const disposable = services.broadcastService.onMessage((message) => {
       if (message.channel !== ZCODE_JWT_INVALID_BROADCAST_CHANNEL || disposed) {

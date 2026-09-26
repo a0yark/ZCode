@@ -1,4 +1,5 @@
 import {
+  ACCOUNT_LOGIN_ENABLED,
   ZAI_PROVIDER_ID,
   buildRuntimeZaiBusinessUrl,
   buildRuntimeZaiOAuthUrl,
@@ -15,7 +16,8 @@ import {
 const ZAI_OAUTH_PROVIDER_CONFIG: Omit<OAuthProviderRuntimeConfig, "appSecret"> = {
   id: ZAI_PROVIDER_ID,
   displayName: "Z.ai",
-  enabled: true,
+  // 本分支关闭官方账号登录，默认值跟随统一开关；ZAI_OAUTH_ENABLED 仍可显式覆盖。
+  enabled: ACCOUNT_LOGIN_ENABLED,
   order: 1,
   // ZAI 当前 OAuth 授权入口使用 /api/oauth 前缀，继续走 /auth/oauth 会打开旧入口。
   authorizeUrl: "https://chat.z.ai/api/oauth/authorize",

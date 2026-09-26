@@ -8,6 +8,7 @@ import type {
   ProviderFamilyDomain,
 } from "@zcode/shared";
 import {
+  ACCOUNT_LOGIN_ENABLED,
   BUILTIN_MODEL_PROVIDER_IDS,
   isStartPlanModelProviderId,
   resolveModelProviderFamilySpecByProviderId,
@@ -91,8 +92,11 @@ export function useModelProviderNavigation({
 
   const codingPlanItems = useMemo(
     () =>
-      CODING_PLAN_PROVIDER_SPECS.filter((spec) =>
-        shouldShowCodingPlanForProviderFamilyDomain(spec.oauthProviderId, providerFamilyDomain),
+      // Coding Plan / Start Plan 都是官方账号权益；关闭账号登录后不展示这些条目。
+      CODING_PLAN_PROVIDER_SPECS.filter(
+        (spec) =>
+          ACCOUNT_LOGIN_ENABLED &&
+          shouldShowCodingPlanForProviderFamilyDomain(spec.oauthProviderId, providerFamilyDomain),
       ).map((spec) => {
         const provider = modelProviders.find((item) => item.providerId === spec.id) ?? null;
         const accountEntitled = entitledAccountProviderIds.has(spec.id);
@@ -152,21 +156,25 @@ export function useModelProviderNavigation({
   );
   const connectionModeCodingPlanItems = useMemo(
     () =>
-      buildVisibleFamilyConnectionItems({
-        items: codingPlanItems.filter((item) => !isStartPlanModelProviderId(item.presetId)),
-        codingPlanEntitlements,
-        subscribedTeamProducts,
-        showPurchasedTeamPlanFallback,
-        connectionSelections: {
-          ...connectionSelections,
-          ...pendingConnectionSelections,
-        },
-        teamPlanSelections: Object.fromEntries(
-          Object.entries({ ...connectionSelections, ...pendingConnectionSelections }).filter(
-            ([, selection]) => selection?.kind === "team-coding-plan",
-          ),
-        ),
-      }),
+      // 团队套餐条目可能由已保存的 team 选择回填（例如与官方 ZCode 共用数据目录），
+      // 关闭账号登录后同样不能出现。
+      !ACCOUNT_LOGIN_ENABLED
+        ? []
+        : buildVisibleFamilyConnectionItems({
+            items: codingPlanItems.filter((item) => !isStartPlanModelProviderId(item.presetId)),
+            codingPlanEntitlements,
+            subscribedTeamProducts,
+            showPurchasedTeamPlanFallback,
+            connectionSelections: {
+              ...connectionSelections,
+              ...pendingConnectionSelections,
+            },
+            teamPlanSelections: Object.fromEntries(
+              Object.entries({ ...connectionSelections, ...pendingConnectionSelections }).filter(
+                ([, selection]) => selection?.kind === "team-coding-plan",
+              ),
+            ),
+          }),
     [
       codingPlanEntitlements,
       showPurchasedTeamPlanFallback,

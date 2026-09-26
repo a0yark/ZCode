@@ -6,6 +6,7 @@ import { CodingPlanEntryButton } from "@/settings/CodingPlanEntryButton.js";
  */
 import { useState } from "react";
 import {
+  ACCOUNT_LOGIN_ENABLED,
   MEDIA_BUDGET_CURRENT_ATTACHMENT_TOO_LARGE_ERROR_CODE,
   MEDIA_BUDGET_CURRENT_IMAGE_TOO_LARGE_ERROR_CODE,
   MEDIA_BUDGET_CURRENT_VIDEO_TOO_LARGE_ERROR_CODE,
@@ -73,7 +74,12 @@ export function resolveChatErrorBannerDisplayMessage(
   intl: IntlInstance,
 ): string {
   if (isModelConfigMissingError(error)) {
-    return intl.formatMessage({ id: "chat.error.noAvailableModel" });
+    // 关闭官方账号登录后无法开通编程套餐，提示只引导配置模型供应商。
+    return intl.formatMessage({
+      id: ACCOUNT_LOGIN_ENABLED
+        ? "chat.error.noAvailableModel"
+        : "chat.error.noAvailableModelApiOnly",
+    });
   }
 
   const providerBusinessCode =
@@ -208,22 +214,24 @@ export function ChatErrorBanner({
 
         {modelConfigMissing ? (
           <>
-            <CodingPlanEntryButton
-              type="button"
-              variant="default"
-              size="sm"
-              onClick={onOpenUpgrade}
-              className={cn(
-                actionButtonClassName,
-                "button-gradient gap-1.5 text-white hover:bg-transparent hover:opacity-90 dark:bg-[#484A58] dark:hover:bg-[#484A58]",
-              )}
-              aria-label={intl.formatMessage({
-                id: "chat.quota.action.upgrade",
-              })}
-            >
-              <RocketIcon className="size-3.5" />
-              {intl.formatMessage({ id: "chat.quota.action.upgrade" })}
-            </CodingPlanEntryButton>
+            {ACCOUNT_LOGIN_ENABLED ? (
+              <CodingPlanEntryButton
+                type="button"
+                variant="default"
+                size="sm"
+                onClick={onOpenUpgrade}
+                className={cn(
+                  actionButtonClassName,
+                  "button-gradient gap-1.5 text-white hover:bg-transparent hover:opacity-90 dark:bg-[#484A58] dark:hover:bg-[#484A58]",
+                )}
+                aria-label={intl.formatMessage({
+                  id: "chat.quota.action.upgrade",
+                })}
+              >
+                <RocketIcon className="size-3.5" />
+                {intl.formatMessage({ id: "chat.quota.action.upgrade" })}
+              </CodingPlanEntryButton>
+            ) : null}
             <Button
               type="button"
               variant="outline"

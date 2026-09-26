@@ -2,6 +2,7 @@
 import type { Locale, UserInfo } from "@zcode/shared";
 import { memo, useCallback, useEffect, useState } from "react";
 import {
+  ACCOUNT_LOGIN_ENABLED,
   DesktopCommandIds,
   TID_LOGIN_MENU_ITEM,
   TID_LOGIN_TRIGGER,
@@ -72,7 +73,8 @@ function getSidebarProfileBadge(
   user: UserInfo | null | undefined,
   formatMessage: ReturnType<typeof useZCodeIntl>["intl"]["formatMessage"],
 ): string {
-  if (user) {
+  // 关闭官方账号登录后不存在“登录态”，头像区展示应用名而不是“未登录”。
+  if (user || !ACCOUNT_LOGIN_ENABLED) {
     return getSidebarProfileName(user);
   }
 
@@ -134,7 +136,7 @@ export const WorkspaceSidebarFooter = memo(function WorkspaceSidebarFooterCompon
   const profileBadge = getSidebarProfileBadge(user, intl.formatMessage);
   const avatarFallbackText = getAvatarFallbackText(user);
   const avatarKey = user?.avatarUrl ?? user?.id ?? "guest";
-  const showAuthRestoreLoading = !user && isRestoringOAuthSession;
+  const showAuthRestoreLoading = ACCOUNT_LOGIN_ENABLED && !user && isRestoringOAuthSession;
   const usageSummaryState = useWorkspaceSidebarFooterUsageSummaryState({
     enabled: true,
     workspaceIdentity,
@@ -145,7 +147,7 @@ export const WorkspaceSidebarFooter = memo(function WorkspaceSidebarFooterCompon
       <Avatar key={avatarKey} size="default">
         {user?.avatarUrl ? <AvatarImage src={user.avatarUrl} alt={profileBadge} /> : null}
         <AvatarFallback className="bg-background text-foreground">
-          {user ? (
+          {user || !ACCOUNT_LOGIN_ENABLED ? (
             avatarFallbackText
           ) : showAuthRestoreLoading ? (
             <>
