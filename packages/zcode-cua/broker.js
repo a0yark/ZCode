@@ -40,11 +40,75 @@ export async function callBrokerMethod(_args) {
   throw new BrokerError("Computer Use is not available in this build.");
 }
 
-export async function probeHelperHealth(_socketPath, _options) {
-  return { bundleId: null, pid: null };
+/**
+ * Health probe: connect to the helper broker on its named pipe/Unix socket,
+ * authenticate (authenticate-first protocol), then read broker_info for the
+ * authoritative {pid, bundleId}. The desktop host compares pid against the
+ * forked child pid (isExactHealthPid) — a null pid fails the check, so this
+ * must return real values from a live broker, never placeholders.
+ */
+export async function probeHelperHealth(socketPath, options = {}) {
+  const net = await import("node:net");
+  const timeoutMs = options?.timeoutMs ?? 10_000;
+  return await new Promise((resolve) => {
+    const socket = net.createConnection(socketPath);
+    socket.setEncoding("utf8");
+    let buffer = "";
+    let nextId = 1;
+    const settle = (value) => {
+      socket.destroy();
+      resolve(value);
+    };
+    const timer = setTimeout(() => settle({ bundleId: null, pid: null }), timeoutMs);
+    socket.on("error", () => {
+      clearTimeout(timer);
+      settle({ bundleId: null, pid: null });
+    });
+    socket.on("connect", () => {
+      socket.write(JSON.stringify({ id: nextId++, method: "authenticate", params: { client_type: "zcode_cua_mcp" } }) + "\n");
+    });
+    socket.on("data", (chunk) => {
+      buffer += chunk;
+      let newlineIndex;
+      while ((newlineIndex = buffer.indexOf("\n")) >= 0) {
+        const line = buffer.slice(0, newlineIndex).trim();
+        buffer = buffer.slice(newlineIndex + 1);
+        if (!line) continue;
+        let frame;
+        try {
+          frame = JSON.parse(line);
+        } catch {
+          continue;
+        }
+        if (frame?.ok && frame.id === 1) {
+          // authenticated; ask for broker_info
+          socket.write(JSON.stringify({ id: nextId++, method: "broker_info", params: {} }) + "\n");
+          continue;
+        }
+        if (frame?.id === 2) {
+          clearTimeout(timer);
+          if (frame.ok) {
+            const result = frame.result ?? {};
+            settle({
+              bundleId: typeof result.bundle_id === "string" ? result.bundle_id : null,
+              pid: typeof result.pid === "number" && Number.isInteger(result.pid) && result.pid > 0 ? result.pid : null,
+            });
+          } else {
+            settle({ bundleId: null, pid: null });
+          }
+        }
+      }
+    });
+  });
 }
 
 export function mintBrokerSocketPath(options = {}) {
+  // Windows transport is always a named pipe: the helper broker binds with
+  // CreateNamedPipe semantics and rejects non-pipe listen paths (fs-node
+  // assumptions are POSIX-only). Non-win32 platforms keep the Unix socket.
+  if (process.platform === "win32") {
+    return `\\\\.\\pipe\\zcode-cua-broker-${randomUUID()}`;
+  }
   const dir = typeof options.dir === "string" ? options.dir : tmpdir();
   return join(dir, `zcode-cua-broker-${randomUUID()}.sock`);
 }

@@ -2,9 +2,16 @@
   "name": "@zcode/zcode-cua",
   "version": "0.6.3",
   "private": true,
-  "description": "API-compatible placeholder package for Computer Use. This build ships without Computer Use: every runtime surface reports unavailable and fails closed.",
+  "description": "Computer Use runtime package: Windows helper bundle and native addon, plus the broker client runtime.",
   "license": "Apache-2.0",
   "type": "module",
+  "zcodeCuaRuntime": {
+    "schema": 1,
+    "windows": {
+      "entry": "dist/windows-helper.js",
+      "nativeAddon": "build/Release/ax_native.node"
+    }
+  },
   "exports": {
     ".": {
       "types": "./index.d.ts",

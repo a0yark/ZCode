@@ -1,14 +1,3 @@
-const UNAVAILABLE_TEXT = "Computer Use is not available in this build.";
-
-export function createComputerUseRuntime(_options) {
-  return {
-    async execute() {
-      return {
-        content: [{ type: "text", text: UNAVAILABLE_TEXT }],
-        isError: true,
-      };
-    },
-    async closeSession() {},
-    async dispose() {},
-  };
-}
+export { createComputerUseRuntime } from "./runtime.js";
+export { BrokerClient, BrokerError, CUA_BROKER_IPC_VERSION } from "./broker-client.js";
+export { TOOL_NAMES as COMPUTER_USE_TOOL_NAMES } from "./runtime.js";
